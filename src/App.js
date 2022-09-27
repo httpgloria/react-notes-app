@@ -1,23 +1,39 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+import Notes from './components/Notes';
+import AddNote from './components/AddNote';
+import Search from './components/Search';
+import { AppContext } from './context/AppContext';
+
 import './App.css';
 
 function App() {
+  const [notes, setNotes] = useState([]);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const storageNotes = JSON.parse(localStorage.getItem('notes-app-data'));
+
+    if (storageNotes) {
+      setNotes(storageNotes);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('notes-app-data', JSON.stringify(notes));
+  }, [notes]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="notes-app">
+      <h1 className="notes-app__heading">My Notes</h1>
+      <AppContext.Provider value={{ notes, setNotes, search, setSearch }}>
+        <Search />
+        <AddNote />
+        <Notes
+          notesList={notes.filter((note) =>
+            note.text.toLowerCase().includes(search)
+          )}
+        />
+      </AppContext.Provider>
     </div>
   );
 }
